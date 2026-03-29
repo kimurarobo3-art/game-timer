@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ゲームタイマー">
+<meta name="theme-color" content="#0f0f12">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>ゲーム時間タイマー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: #0f0f12;
+    color: #e8e8f0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
+  }
+
+  .card {
+    background: #1a1a22;
+    border: 1px solid #2a2a38;
+    border-radius: 20px;
+    padding: 1.5rem 1.25rem;
+    width: 100%;
+    max-width: 520px;
+    margin: auto;
+  }
+
+  @media (min-width: 540px) {
+    body { align-items: center; padding: 2rem; }
+    .card { border-radius: 24px; padding: 2.5rem; }
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ddd;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .rate-badge {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #aaa;
+    margin-bottom: 2rem;
+  }
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #aaa;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 1.5rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #aaa;
+    text-align: center;
+  }
+
+  .input-group input {
+    background: #0f0f12;
+    border: 1px solid #2a2a38;
+    border-radius: 12px;
+    color: #e8e8f0;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 500;
+    text-align: center;
+    padding: 12px 4px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+
+  .input-group input:focus { border-color: #4a90d9; }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  button {
+    flex: 1;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #2a2a38;
+    font-size: clamp(16px, 4vw, 18px);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    min-height: 52px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:active { transform: scale(0.97); }
+
+  #btnStart { background: #1a3a5c; color: #7ab8f5; border-color: #2a5a9c; }
+  #btnStart:hover { background: #1f4570; }
+  #btnStart.running { background: #3a1a1a; color: #f57a7a; border-color: #7a2a2a; }
+
+  #btnReset {
+    background: transparent;
+    color: #aaa;
+    flex: 0 0 auto;
+    padding: 15px 24px;
+  }
+
+  #btnReset:hover { color: #ddd; background: #222230; }
+
+  .display-main {
+    background: #0f0f12;
+    border: 1px solid #2a2a38;
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .display-main .label { font-size: 14px; font-weight: 500; color: #aaa; margin-bottom: 12px; }
+
+  .display-main .value {
+    font-size: clamp(36px, 10vw, 64px);
+    font-weight: 300;
+    letter-spacing: 4px;
+    font-variant-numeric: tabular-nums;
+    color: #e8e8f0;
+    font-family: 'Courier New', monospace;
+  }
+
+  .progress-wrap {
+    height: 5px;
+    background: #1a1a22;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 1.25rem;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: #4a90d9;
+    border-radius: 99px;
+    transition: width 0.5s linear;
+    width: 100%;
+  }
+
+  .display-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .display-small {
+    background: #0f0f12;
+    border: 1px solid #2a2a38;
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .display-small .label { font-size: 13px; font-weight: 500; color: #aaa; margin-bottom: 8px; }
+
+  .display-small .value {
+    font-size: clamp(16px, 4.5vw, 22px);
+    font-weight: 500;
+    color: #ddd;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .done-msg {
+    text-align: center;
+    font-size: 18px;
+    color: #7ab87a;
+    padding: 1rem;
+    display: none;
+    background: #0a1a0a;
+    border: 1px solid #1a4a1a;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>ゲーム時間タイマー</h1>
+  <div class="rate-badge">ゲーム1分 = 現実5秒（12倍速）</div>
+
+  <div class="section-label">ゲーム時間を入力</div>
+  <div class="inputs">
+    <div class="input-group">
+      <label>日</label>
+      <input type="number" id="days" value="0" min="0" step="1" inputmode="numeric">
+    </div>
+    <div class="input-group">
+      <label>時間</label>
+      <input type="number" id="hours" value="0" min="0" max="23" step="1" inputmode="numeric">
+    </div>
+    <div class="input-group">
+      <label>分</label>
+      <input type="number" id="mins" value="0" min="0" max="59" step="1" inputmode="numeric">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="btnStart" onclick="startTimer()">スタート</button>
+    <button id="btnReset" onclick="resetTimer()">リセット</button>
+  </div>
+
+  <div class="display-main">
+    <div class="label">残り現実時間</div>
+    <div class="value" id="realRemain">--:--:--</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progBar"></div></div>
+  </div>
+
+  <div class="display-row">
+    <div class="display-small">
+      <div class="label">ゲーム残り時間</div>
+      <div class="value" id="gameRemain">--</div>
+    </div>
+    <div class="display-small">
+      <div class="label">経過（現実）</div>
+      <div class="value" id="realElapsed">00:00:00</div>
+    </div>
+  </div>
+
+  <div class="done-msg" id="doneMsg">⏰ 時間になりました！</div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+let timer = null;
+let totalRealSecs = 0;
+let startedAt = null;
+let elapsedBeforePause = 0;
+let running = false;
+let warned5min = false;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playBeep(freq, duration, vol, delay) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    const t = ctx.currentTime + (delay || 0);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t);
+    osc.stop(t + duration);
+  } catch(e) {}
+}
+
+function playWarning() {
+  playBeep(880, 0.25, 0.4, 0);
+  playBeep(880, 0.25, 0.4, 0.35);
+  playBeep(1100, 0.45, 0.5, 0.7);
+}
+
+function playFinish() {
+  playBeep(1000, 0.2, 0.5, 0);
+  playBeep(1000, 0.2, 0.5, 0.25);
+  playBeep(1000, 0.2, 0.5, 0.5);
+  playBeep(1400, 0.9, 0.6, 0.75);
+}
+
+function calcReal() {
+  const d = parseInt(document.getElementById('days').value) || 0;
+  const h = parseInt(document.getElementById('hours').value) || 0;
+  const m = parseInt(document.getElementById('mins').value) || 0;
+  return (d * 24 * 60 + h * 60 + m) * 5;
+}
+
+function fmt(secs) {
+  const s = Math.max(0, Math.round(secs));
+  const hh = Math.floor(s / 3600);
+  const mm = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0') + ':' + String(ss).padStart(2,'0');
+}
+
+function fmtGame(secs) {
+  const gameSecs = secs * 12;
+  const gm = Math.floor(gameSecs / 60);
+  const gh = Math.floor(gm / 60);
+  const gd = Math.floor(gh / 24);
+  const rhg = gh % 24;
+  const rmg = gm % 60;
+  let str = '';
+  if (gd > 0) str += gd + '日 ';
+  if (rhg > 0 || gd > 0) str += rhg + '時間 ';
+  str += rmg + '分';
+  return str;
+}
+
+function startTimer() {
+  if (running) {
+    clearInterval(timer);
+    elapsedBeforePause += (Date.now() - startedAt) / 1000;
+    running = false;
+    document.getElementById('btnStart').textContent = '再開';
+    document.getElementById('btnStart').classList.remove('running');
+    return;
+  }
+  if (elapsedBeforePause === 0) {
+    totalRealSecs = calcReal();
+    if (totalRealSecs <= 0) return;
+    warned5min = false;
+    document.getElementById('doneMsg').style.display = 'none';
+  }
+  // iOSはユーザー操作でAudioContextを起動する必要がある
+  getAudioCtx();
+  startedAt = Date.now();
+  running = true;
+  document.getElementById('btnStart').textContent = '一時停止';
+  document.getElementById('btnStart').classList.add('running');
+
+  timer = setInterval(() => {
+    const elapsed = elapsedBeforePause + (Date.now() - startedAt) / 1000;
+    const remain = totalRealSecs - elapsed;
+
+    // 5分前アラート（300秒）
+    if (!warned5min && remain <= 300 && remain > 0) {
+      warned5min = true;
+      playWarning();
+      document.getElementById('doneMsg').style.display = 'block';
+      document.getElementById('doneMsg').style.color = '#f5c842';
+      document.getElementById('doneMsg').style.background = '#1a1500';
+      document.getElementById('doneMsg').style.borderColor = '#4a3a00';
+      document.getElementById('doneMsg').textContent = '⚠️ 残り5分！';
+    }
+
+    if (remain <= 0) {
+      clearInterval(timer);
+      running = false;
+      elapsedBeforePause = 0;
+      playFinish();
+      document.getElementById('btnStart').textContent = 'スタート';
+      document.getElementById('btnStart').classList.remove('running');
+      document.getElementById('doneMsg').style.display = 'block';
+      document.getElementById('doneMsg').style.color = '#7ab87a';
+      document.getElementById('doneMsg').style.background = '#0a1a0a';
+      document.getElementById('doneMsg').style.borderColor = '#1a4a1a';
+      document.getElementById('doneMsg').textContent = '⏰ 時間になりました！';
+      document.getElementById('realRemain').textContent = '00:00:00';
+      document.getElementById('progBar').style.width = '0%';
+      return;
+    }
+    document.getElementById('realRemain').textContent = fmt(remain);
+    document.getElementById('realElapsed').textContent = fmt(elapsed);
+    document.getElementById('gameRemain').textContent = fmtGame(remain);
+    document.getElementById('progBar').style.width = (remain / totalRealSecs * 100) + '%';
+  }, 500);
+}
+
+function resetTimer() {
+  clearInterval(timer);
+  running = false;
+  elapsedBeforePause = 0;
+  warned5min = false;
+  document.getElementById('btnStart').textContent = 'スタート';
+  document.getElementById('btnStart').classList.remove('running');
+  document.getElementById('realRemain').textContent = '--:--:--';
+  document.getElementById('realElapsed').textContent = '00:00:00';
+  document.getElementById('gameRemain').textContent = '--';
+  document.getElementById('progBar').style.width = '100%';
+  document.getElementById('doneMsg').style.display = 'none';
+  document.getElementById('doneMsg').style.color = '#7ab87a';
+  document.getElementById('doneMsg').style.background = '#0a1a0a';
+  document.getElementById('doneMsg').style.borderColor = '#1a4a1a';
+  document.getElementById('doneMsg').textContent = '⏰ 時間になりました！';
+}
+</script>
+</body>
+</html>
