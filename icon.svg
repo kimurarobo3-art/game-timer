@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#1a1a22"/>
+  <rect x="60" y="200" width="392" height="200" rx="24" fill="#0f0f12" stroke="#2a2a38" stroke-width="4"/>
+  <text x="256" y="330" font-family="Courier New, monospace" font-size="110" font-weight="300" fill="#e8e8f0" text-anchor="middle" letter-spacing="6">00:00</text>
+  <rect x="140" y="120" width="80" height="60" rx="12" fill="#0f0f12" stroke="#2a2a38" stroke-width="4"/>
+  <text x="180" y="162" font-family="Courier New, monospace" font-size="32" fill="#aaa" text-anchor="middle">日</text>
+  <rect x="236" y="120" width="80" height="60" rx="12" fill="#0f0f12" stroke="#2a2a38" stroke-width="4"/>
+  <text x="276" y="162" font-family="Courier New, monospace" font-size="32" fill="#aaa" text-anchor="middle">時</text>
+  <rect x="332" y="120" width="80" height="60" rx="12" fill="#0f0f12" stroke="#2a2a38" stroke-width="4"/>
+  <text x="372" y="162" font-family="Courier New, monospace" font-size="32" fill="#aaa" text-anchor="middle">分</text>
+  <rect x="60" y="420" width="240" height="56" rx="12" fill="#1a3a5c" stroke="#2a5a9c" stroke-width="3"/>
+  <text x="180" y="456" font-family="sans-serif" font-size="28" font-weight="500" fill="#7ab8f5" text-anchor="middle">スタート</text>
+  <rect x="316" y="420" width="136" height="56" rx="12" fill="#0f0f12" stroke="#2a2a38" stroke-width="3"/>
+  <text x="384" y="456" font-family="sans-serif" font-size="28" font-weight="500" fill="#aaa" text-anchor="middle">リセット</text>
+</svg>
