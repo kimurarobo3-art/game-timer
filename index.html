@@ -214,7 +214,7 @@
 <body>
 <div class="card">
   <h1>ゲーム時間タイマー</h1>
-  <div class="rate-badge">ゲーム1分 = 現実5秒（12倍速）</div>
+  <div class="rate-badge">ゲーム1日 = 現実4時間（144倍速）</div>
 
   <div class="section-label">ゲーム時間を入力</div>
   <div class="inputs">
@@ -251,6 +251,17 @@
     <div class="display-small">
       <div class="label">経過（現実）</div>
       <div class="value" id="realElapsed">00:00:00</div>
+    </div>
+  </div>
+
+  <div class="display-row" id="alarmRow" style="display:none;">
+    <div class="display-small">
+      <div class="label">⚠️ 5分前アラーム</div>
+      <div class="value" id="alarmWarn">--:--</div>
+    </div>
+    <div class="display-small">
+      <div class="label">⏰ 終了時刻</div>
+      <div class="value" id="alarmEnd">--:--</div>
     </div>
   </div>
 
@@ -309,7 +320,9 @@ function calcReal() {
   const d = parseInt(document.getElementById('days').value) || 0;
   const h = parseInt(document.getElementById('hours').value) || 0;
   const m = parseInt(document.getElementById('mins').value) || 0;
-  return (d * 24 * 60 + h * 60 + m) * 5;
+  // ゲーム1日=現実4時間=14400秒 → ゲーム1分=現実10秒
+  const gameMins = d * 24 * 60 + h * 60 + m;
+  return gameMins * 10;
 }
 
 function fmt(secs) {
@@ -321,7 +334,8 @@ function fmt(secs) {
 }
 
 function fmtGame(secs) {
-  const gameSecs = secs * 12;
+  // 現実1秒=ゲーム144秒
+  const gameSecs = secs * 144;
   const gm = Math.floor(gameSecs / 60);
   const gh = Math.floor(gm / 60);
   const gd = Math.floor(gh / 24);
@@ -334,7 +348,12 @@ function fmtGame(secs) {
   return str;
 }
 
-function startTimer() {
+function nowTime() {
+  const n = new Date();
+  const hh = String(n.getHours()).padStart(2,'0');
+  const mm = String(n.getMinutes()).padStart(2,'0');
+  return hh + ':' + mm;
+}
   if (running) {
     clearInterval(timer);
     elapsedBeforePause += (Date.now() - startedAt) / 1000;
@@ -348,6 +367,19 @@ function startTimer() {
     if (totalRealSecs <= 0) return;
     warned5min = false;
     document.getElementById('doneMsg').style.display = 'none';
+
+    // アラーム予定時刻を計算して表示
+    const now = new Date();
+    const endTime = new Date(now.getTime() + totalRealSecs * 1000);
+    const warnTime = new Date(now.getTime() + (totalRealSecs - 300) * 1000);
+    const fmtClock = d => String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('alarmEnd').textContent = fmtClock(endTime);
+    if (totalRealSecs > 300) {
+      document.getElementById('alarmWarn').textContent = fmtClock(warnTime);
+    } else {
+      document.getElementById('alarmWarn').textContent = 'なし';
+    }
+    document.getElementById('alarmRow').style.display = 'grid';
   }
   // iOSはユーザー操作でAudioContextを起動する必要がある
   getAudioCtx();
@@ -368,7 +400,7 @@ function startTimer() {
       document.getElementById('doneMsg').style.color = '#f5c842';
       document.getElementById('doneMsg').style.background = '#1a1500';
       document.getElementById('doneMsg').style.borderColor = '#4a3a00';
-      document.getElementById('doneMsg').textContent = '⚠️ 残り5分！';
+      document.getElementById('doneMsg').textContent = '⚠️ 残り5分！（' + nowTime() + '）';
     }
 
     if (remain <= 0) {
@@ -382,7 +414,7 @@ function startTimer() {
       document.getElementById('doneMsg').style.color = '#7ab87a';
       document.getElementById('doneMsg').style.background = '#0a1a0a';
       document.getElementById('doneMsg').style.borderColor = '#1a4a1a';
-      document.getElementById('doneMsg').textContent = '⏰ 時間になりました！';
+      document.getElementById('doneMsg').textContent = '⏰ 時間になりました！（' + nowTime() + '）';
       document.getElementById('realRemain').textContent = '00:00:00';
       document.getElementById('progBar').style.width = '0%';
       return;
@@ -406,10 +438,9 @@ function resetTimer() {
   document.getElementById('gameRemain').textContent = '--';
   document.getElementById('progBar').style.width = '100%';
   document.getElementById('doneMsg').style.display = 'none';
-  document.getElementById('doneMsg').style.color = '#7ab87a';
-  document.getElementById('doneMsg').style.background = '#0a1a0a';
-  document.getElementById('doneMsg').style.borderColor = '#1a4a1a';
-  document.getElementById('doneMsg').textContent = '⏰ 時間になりました！';
+  document.getElementById('alarmRow').style.display = 'none';
+  document.getElementById('alarmWarn').textContent = '--:--';
+  document.getElementById('alarmEnd').textContent = '--:--';
 }
 </script>
 </body>
