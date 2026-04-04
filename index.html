@@ -338,13 +338,12 @@ function fmt(secs) {
 }
 
 function fmtGame(secs) {
-  // 現実1秒=ゲーム144秒
-  const gameSecs = secs * 144;
-  const gm = Math.floor(gameSecs / 60);
-  const gh = Math.floor(gm / 60);
+  // 現実10秒 = ゲーム1分
+  const gameMins = Math.floor(secs / 10);
+  const gh = Math.floor(gameMins / 60);
   const gd = Math.floor(gh / 24);
   const rhg = gh % 24;
-  const rmg = gm % 60;
+  const rmg = gameMins % 60;
   let str = '';
   if (gd > 0) str += gd + '日 ';
   if (rhg > 0 || gd > 0) str += rhg + '時間 ';
