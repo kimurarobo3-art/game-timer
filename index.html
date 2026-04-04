@@ -220,15 +220,15 @@
   <div class="inputs">
     <div class="input-group">
       <label>日</label>
-      <input type="number" id="days" value="0" min="0" step="1" inputmode="numeric">
+      <input type="number" id="days" value="0" min="0" step="1" inputmode="numeric" onfocus="this.select()">
     </div>
     <div class="input-group">
       <label>時間</label>
-      <input type="number" id="hours" value="0" min="0" max="23" step="1" inputmode="numeric">
+      <input type="number" id="hours" value="0" min="0" max="23" step="1" inputmode="numeric" onfocus="this.select()">
     </div>
     <div class="input-group">
       <label>分</label>
-      <input type="number" id="mins" value="0" min="0" max="59" step="1" inputmode="numeric">
+      <input type="number" id="mins" value="0" min="0" max="59" step="1" inputmode="numeric" onfocus="this.select()">
     </div>
   </div>
 
@@ -269,9 +269,13 @@
 </div>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
+// iOS対応の全選択
+document.querySelectorAll('input[type=number]').forEach(input => {
+  input.addEventListener('touchstart', function() {
+    const el = this;
+    setTimeout(() => el.select(), 30);
+  });
+});
 
 let timer = null;
 let totalRealSecs = 0;
@@ -354,6 +358,8 @@ function nowTime() {
   const mm = String(n.getMinutes()).padStart(2,'0');
   return hh + ':' + mm;
 }
+
+function startTimer() {
   if (running) {
     clearInterval(timer);
     elapsedBeforePause += (Date.now() - startedAt) / 1000;
