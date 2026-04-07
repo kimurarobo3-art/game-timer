@@ -214,7 +214,7 @@
 <body>
 <div class="card">
   <h1>ゲーム時間タイマー</h1>
-  <div class="rate-badge">ゲーム1日 = 現実4時間（144倍速）</div>
+  <div class="rate-badge">ゲーム1時間 = 現実5分（720倍速）</div>
 
   <div class="section-label">ゲーム時間を入力</div>
   <div class="inputs">
@@ -324,9 +324,9 @@ function calcReal() {
   const d = parseInt(document.getElementById('days').value) || 0;
   const h = parseInt(document.getElementById('hours').value) || 0;
   const m = parseInt(document.getElementById('mins').value) || 0;
-  // ゲーム1日=現実4時間=14400秒 → ゲーム1分=現実10秒
+  // ゲーム1時間=現実5分 → ゲーム1分=現実5秒
   const gameMins = d * 24 * 60 + h * 60 + m;
-  return gameMins * 10;
+  return gameMins * 5;
 }
 
 function fmt(secs) {
@@ -338,8 +338,8 @@ function fmt(secs) {
 }
 
 function fmtGame(secs) {
-  // 現実10秒 = ゲーム1分
-  const gameMins = Math.floor(secs / 10);
+  // 現実5秒 = ゲーム1分
+  const gameMins = Math.floor(secs / 5);
   const gh = Math.floor(gameMins / 60);
   const gd = Math.floor(gh / 24);
   const rhg = gh % 24;
